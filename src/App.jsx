@@ -3,6 +3,7 @@ import DemoBanner from './components/DemoBanner.jsx'
 import Hero from './components/Hero.jsx'
 import Simulator from './components/Simulator.jsx'
 import Results from './components/Results.jsx'
+import Report from './components/Report.jsx'
 import LeadForm from './components/LeadForm.jsx'
 import HowItWorks from './components/HowItWorks.jsx'
 import Footer from './components/Footer.jsx'
@@ -49,6 +50,7 @@ export default function App() {
             ) : (
               <div ref={resultsRef}>
                 <Results result={simulation.result} input={simulation.input} onRestart={restart} />
+                <Report result={simulation.result} input={simulation.input} />
                 <LeadForm simulation={simulation} />
               </div>
             )}

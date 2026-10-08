@@ -76,6 +76,21 @@ export function estimate({ housing, period, surface, heating, works = [] }) {
   const co2Before = needBefore * heat.co2
   const co2Saved = co2Before - energyAfter * co2After
 
+  // Détail poste par poste, appliqué dans l'ordre : d'abord l'isolation
+  // (chaque gain s'applique à ce qui reste), puis le changement de chauffage.
+  const breakdown = []
+  let need = needBefore
+  for (const key of Object.keys(WORKS)) {
+    if (key === 'pac' || !works.includes(key)) continue
+    const savedKwh = need * WORKS[key].saving
+    need -= savedKwh
+    breakdown.push({ key, kwhSaved: round(savedKwh, 100), euroSaved: round(savedKwh * heat.price) })
+  }
+  if (usesPac) {
+    const euro = needAfter * heat.price - (needAfter / PAC_COP) * elec.price
+    breakdown.push({ key: 'pac', kwhSaved: round(needAfter - needAfter / PAC_COP, 100), euroSaved: round(euro) })
+  }
+
   return {
     kwhBefore: round(needBefore, 100),
     kwhAfter: round(energyAfter, 100),
@@ -86,5 +101,20 @@ export function estimate({ housing, period, surface, heating, works = [] }) {
     co2SavedKg: round(Math.max(0, co2Saved)),
     labelBefore: labelFor(needBefore / s),
     labelAfter: labelFor(energyAfter / s),
+    kwhM2Before: Math.round(needBefore / s),
+    kwhM2After: Math.round(energyAfter / s),
+    co2BeforeKg: round(co2Before),
+    breakdown,
+    assumptions: {
+      kwhM2Period: PERIODS[period].kwhM2,
+      housingFactor: HOUSING[housing].factor,
+      price: heat.price,
+      co2: heat.co2,
+      elecPrice: elec.price,
+      elecCo2: elec.co2,
+      cop: PAC_COP,
+    },
   }
 }
+
+export const LABEL_THRESHOLDS = LABELS

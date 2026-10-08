@@ -31,6 +31,14 @@ test('paramètres invalides → erreur', () => {
   assert.throws(() => estimate({ ...base, heating: 'charbon' }))
 })
 
+test('le détail poste par poste retombe sur le total', () => {
+  for (const heating of ['fioul', 'gaz', 'electrique', 'bois']) {
+    const r = estimate({ ...base, heating, works: ['combles', 'murs', 'fenetres', 'vmc', 'pac'] })
+    const sum = r.breakdown.reduce((a, b) => a + b.euroSaved, 0)
+    assert.ok(Math.abs(sum - (r.costBefore - r.costAfter)) <= 30, `${heating}: ${sum}`)
+  }
+})
+
 test('seuils des étiquettes', () => {
   assert.equal(labelFor(60), 'A')
   assert.equal(labelFor(500), 'G')
