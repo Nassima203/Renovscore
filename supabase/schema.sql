@@ -14,11 +14,9 @@ create table if not exists public.leads (
   estimated_saving integer
 );
 
--- Sécurité : le site public peut uniquement INSÉRER, jamais lire les leads.
+-- Sécurité : RLS activée SANS aucune policy.
+-- => la clé publique (anon) ne peut ni lire ni écrire dans cette table.
+-- Seule la fonction serveur /api/lead (clé service_role, stockée sur Vercel) peut insérer.
 alter table public.leads enable row level security;
 
 drop policy if exists "Public can insert leads" on public.leads;
-create policy "Public can insert leads"
-  on public.leads for insert
-  to anon
-  with check (true);

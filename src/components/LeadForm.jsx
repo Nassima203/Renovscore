@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { saveLead, isDemoMode } from '../lib/supabase.js'
+import { saveLead } from '../lib/api.js'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_RE = /^(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}$/
 
 export default function LeadForm({ simulation }) {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', postal_code: '', consent: false })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', postal_code: '', website: '', consent: false })
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
   const [errors, setErrors] = useState({})
   const [demo, setDemo] = useState(false)
@@ -41,7 +41,6 @@ export default function LeadForm({ simulation }) {
         surface: Number(simulation.input.surface),
         heating: simulation.input.heating,
         works: simulation.input.works,
-        estimated_saving: simulation.result.yearlySaving,
       })
       setDemo(res.demo)
       setStatus('sent')
@@ -59,8 +58,8 @@ export default function LeadForm({ simulation }) {
           <p>Votre demande a bien été enregistrée. Un conseiller vous recontacterait sous 48 h.</p>
           {demo && (
             <p className="muted small">
-              (Mode démo : la demande est stockée dans votre navigateur. En production, elle est enregistrée dans
-              Supabase.)
+              (Mode démo : la demande est stockée dans votre navigateur. En ligne, elle est enregistrée dans
+              Supabase via une fonction serveur.)
             </p>
           )}
         </div>
@@ -101,6 +100,18 @@ export default function LeadForm({ simulation }) {
           {field('postal_code', 'Code postal', { inputMode: 'numeric', maxLength: 5, autoComplete: 'postal-code' })}
         </div>
 
+        {/* Champ piège anti-robots, invisible pour les humains */}
+        <input
+          className="hp"
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          value={form.website}
+          onChange={update}
+        />
+
         <label className="consent">
           <input type="checkbox" name="consent" checked={form.consent} onChange={update} />
           J'accepte d'être recontacté au sujet de mon projet de rénovation.
@@ -116,7 +127,6 @@ export default function LeadForm({ simulation }) {
         <button className="btn btn--full" disabled={status === 'sending'}>
           {status === 'sending' ? 'Envoi…' : 'Envoyer ma demande'}
         </button>
-        {isDemoMode && <p className="muted small center">Mode démo actif — aucune donnée n'est envoyée.</p>}
       </div>
     </form>
   )

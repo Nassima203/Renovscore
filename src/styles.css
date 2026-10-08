@@ -507,6 +507,13 @@ input[type='tel'],
   margin-top: 4px;
   accent-color: var(--green-700);
 }
+.hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
 .success {
   border-top: 5px solid var(--green-500);
 }

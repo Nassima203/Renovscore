@@ -24,7 +24,7 @@ L'utilisateur peut ensuite laisser ses coordonnées pour être rappelé : la dem
 | --- | --- |
 | **Maquette → intégration** | Maquette Figma (composants, variables, desktop + mobile) intégrée en React, responsive mobile-first, accessible (navigation clavier, `aria-*`, `prefers-reduced-motion`). |
 | **Développement** | Composants React, logique métier isolée et testée (`src/lib/estimate.js`), validation de formulaire côté client. |
-| **Back-end** | Table Supabase avec contraintes SQL et **Row Level Security** : le site public peut insérer une demande mais jamais lire les données. |
+| **Back-end** | Fonction serveur Vercel (`api/lead.js`) qui valide la demande et l'enregistre dans Supabase. Aucune clé n'est exposée dans le navigateur ; la table est verrouillée par **Row Level Security** (aucun accès public). |
 | **Déploiement** | CI GitHub Actions (tests + build à chaque push), déploiement continu sur Vercel, headers de sécurité et de cache. |
 
 ## Stack
@@ -40,21 +40,23 @@ npm test         # tests unitaires du moteur d'estimation
 npm run build    # build de production dans /dist
 ```
 
-Sans clés Supabase, le site fonctionne en **mode démo** (demandes stockées dans le navigateur).
+Avec `npm run dev`, la fonction serveur n'est pas lancée : le formulaire passe en **mode démo** (demandes stockées dans le navigateur).
 
 ## Brancher Supabase
 
 1. Crée un projet sur [supabase.com](https://supabase.com).
 2. Dans **SQL Editor**, colle et exécute le contenu de `supabase/schema.sql`.
-3. Dans **Project Settings → API**, copie l'URL et la clé `anon public`.
-4. Copie `.env.example` en `.env.local` et colle ces deux valeurs.
+3. Dans **Project Settings → API**, copie la Project URL et la clé `service_role` (secrète).
+
+La clé `service_role` n'est utilisée que par la fonction serveur `api/lead.js`. Elle n'est jamais envoyée au navigateur ni poussée sur GitHub.
 
 ## Déployer sur Vercel
 
-1. Pousse le projet sur GitHub.
-2. Sur [vercel.com](https://vercel.com) → **Add New → Project** → importe le dépôt (Vite est détecté automatiquement).
-3. Dans **Environment Variables**, ajoute `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY`.
-4. **Deploy**. Chaque push sur `main` redéploie automatiquement.
+1. Sur [vercel.com](https://vercel.com) → **Add New → Project** → importe le dépôt (Vite est détecté automatiquement).
+2. Dans **Environment Variables**, ajoute `SUPABASE_URL` et `SUPABASE_SERVICE_ROLE_KEY` (sans préfixe `VITE_`).
+3. **Deploy**. Chaque push sur `main` redéploie automatiquement.
+
+Pour tester la fonction serveur en local : `npx vercel dev` (avec un `.env.local` rempli à partir de `.env.example`).
 
 ## Hypothèses de calcul
 
