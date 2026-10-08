@@ -26,5 +26,6 @@ alter table public.leads add column if not exists already_done text[] not null d
 -- => la clé publique (anon) ne peut ni lire ni écrire dans cette table.
 -- Seule la fonction serveur /api/lead (clé service_role, stockée sur Vercel) peut insérer.
 alter table public.leads enable row level security;
+revoke all on public.leads from anon, authenticated;
 
 drop policy if exists "Public can insert leads" on public.leads;
