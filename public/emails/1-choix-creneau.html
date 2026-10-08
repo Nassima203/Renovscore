@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rénov'Score — Choisissez votre créneau d'appel</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; padding:0; background:#f4efe4; }
+  a { text-decoration:none; }
+  @media (max-width:620px) {
+    .wrap { width:100% !important; }
+    .px { padding-left:20px !important; padding-right:20px !important; }
+    .slot { display:block !important; width:100% !important; margin:0 0 8px !important; }
+    .day { display:block !important; width:100% !important; padding:0 0 14px !important; }
+    .h1 { font-size:30px !important; }
+  }
+</style>
+</head>
+<body>
+<!-- Texte d'aperçu (visible dans la boîte de réception) -->
+<div style="display:none;max-height:0;overflow:hidden;">Votre demande est bien reçue. Choisissez le créneau où un conseiller vous appelle (15 min, gratuit).</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4efe4;">
+<tr><td align="center" style="padding:32px 12px;">
+
+<table role="presentation" class="wrap" width="600" cellpadding="0" cellspacing="0" style="width:600px;background:#ffffff;border-radius:18px;overflow:hidden;font-family:'Poppins',Arial,sans-serif;color:#1d2420;">
+
+  <!-- En-tête -->
+  <tr><td class="px" style="background:#163a2b;padding:22px 40px;">
+    <span style="font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-size:24px;letter-spacing:0.5px;color:#f4efe4;">Rénov'Score</span>
+  </td></tr>
+
+  <!-- Titre -->
+  <tr><td class="px" style="padding:36px 40px 8px;">
+    <p style="margin:0 0 10px;font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:#2f7a5b;">Demande reçue</p>
+    <h1 class="h1" style="margin:0 0 14px;font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:36px;line-height:1.1;color:#163a2b;">Merci Camille, votre demande est bien enregistrée</h1>
+    <p style="margin:0;font-size:15px;line-height:1.6;color:#5d6b63;">Un conseiller va vous appeler pour affiner votre estimation et vous présenter les aides possibles. Il ne reste qu'une étape : <strong style="color:#1d2420;">choisir le moment qui vous arrange.</strong></p>
+  </td></tr>
+
+  <!-- Rappel de l'estimation -->
+  <tr><td class="px" style="padding:24px 40px 8px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#e3efe8;border-radius:14px;">
+      <tr><td style="padding:18px 20px;">
+        <p style="margin:0 0 4px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#5d6b63;">Votre simulation</p>
+        <p style="margin:0 0 6px;font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-size:30px;line-height:1.1;color:#163a2b;">−460 € par an</p>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#5d6b63;">Maison de 90 m² · Ardennes · isolation des murs + ventilation · étiquette <strong style="color:#1d2420;">E → D</strong></p>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <!-- Créneau proposé + CTA -->
+  <tr><td class="px" style="padding:28px 40px 8px;">
+    <h2 style="margin:0 0 6px;font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:24px;color:#163a2b;">Votre créneau d'appel</h2>
+    <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#5d6b63;">Appel de 15 minutes, gratuit et sans engagement. Le conseiller vous appelle au numéro indiqué dans votre demande.</p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px solid #1f4d3a;border-radius:14px;">
+      <tr><td style="padding:18px 20px;">
+        <p style="margin:0 0 2px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#2f7a5b;">Premier créneau disponible</p>
+        <p style="margin:0 0 16px;font-size:20px;font-weight:600;color:#1d2420;">Mardi 13 octobre · 10h30 – 10h45</p>
+        <a href="https://renovscore.vercel.app/rdv?creneau=2026-10-13T10:30" style="display:inline-block;background:#1f4d3a;color:#ffffff;font-weight:600;font-size:16px;padding:14px 28px;border-radius:999px;">Valider ce créneau</a>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <!-- Autres créneaux -->
+  <tr><td class="px" style="padding:24px 40px 8px;">
+    <p style="margin:0 0 14px;font-size:14px;font-weight:600;color:#1d2420;">Pas disponible ? Choisissez un autre créneau :</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td class="day" width="33%" valign="top" style="padding-right:8px;">
+          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#5d6b63;">Lun. 12 oct.</p>
+          <a class="slot" href="https://renovscore.vercel.app/rdv?creneau=2026-10-12T09:00" style="display:block;margin-bottom:8px;padding:10px 0;text-align:center;border:1.5px solid #e2d8c3;border-radius:12px;font-size:14px;color:#1d2420;">09h00</a>
+          <a class="slot" href="https://renovscore.vercel.app/rdv?creneau=2026-10-12T14:00" style="display:block;margin-bottom:8px;padding:10px 0;text-align:center;border:1.5px solid #e2d8c3;border-radius:12px;font-size:14px;color:#1d2420;">14h00</a>
+          <a class="slot" href="https://renovscore.vercel.app/rdv?creneau=2026-10-12T17:30" style="display:block;margin-bottom:8px;padding:10px 0;text-align:center;border:1.5px solid #e2d8c3;border-radius:12px;font-size:14px;color:#1d2420;">17h30</a>
+        </td>
+        <td class="day" width="33%" valign="top" style="padding:0 4px;">
+          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#5d6b63;">Mar. 13 oct.</p>
+          <a class="slot" href="https://renovscore.vercel.app/rdv?creneau=2026-10-13T10:30" style="display:block;margin-bottom:8px;padding:10px 0;text-align:center;border:1.5px solid #1f4d3a;background:#e3efe8;border-radius:12px;font-size:14px;font-weight:600;color:#1f4d3a;">10h30 ✓</a>
+          <a class="slot" href="https://renovscore.vercel.app/rdv?creneau=2026-10-13T15:00" style="display:block;margin-bottom:8px;padding:10px 0;text-align:center;border:1.5px solid #e2d8c3;border-radius:12px;font-size:14px;color:#1d2420;">15h00</a>
+          <a class="slot" href="https://renovscore.vercel.app/rdv?creneau=2026-10-13T18:00" style="display:block;margin-bottom:8px;padding:10px 0;text-align:center;border:1.5px solid #e2d8c3;border-radius:12px;font-size:14px;color:#1d2420;">18h00</a>
+        </td>
+        <td class="day" width="33%" valign="top" style="padding-left:8px;">
+          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#5d6b63;">Mer. 14 oct.</p>
+          <a class="slot" href="https://renovscore.vercel.app/rdv?creneau=2026-10-14T09:30" style="display:block;margin-bottom:8px;padding:10px 0;text-align:center;border:1.5px solid #e2d8c3;border-radius:12px;font-size:14px;color:#1d2420;">09h30</a>
+          <a class="slot" href="https://renovscore.vercel.app/rdv?creneau=2026-10-14T12:30" style="display:block;margin-bottom:8px;padding:10px 0;text-align:center;border:1.5px solid #e2d8c3;border-radius:12px;font-size:14px;color:#1d2420;">12h30</a>
+          <a class="slot" href="https://renovscore.vercel.app/rdv?creneau=2026-10-14T16:00" style="display:block;margin-bottom:8px;padding:10px 0;text-align:center;border:1.5px solid #e2d8c3;border-radius:12px;font-size:14px;color:#1d2420;">16h00</a>
+        </td>
+      </tr>
+    </table>
+    <p style="margin:6px 0 0;font-size:13px;line-height:1.5;color:#5d6b63;">Un clic sur un horaire ouvre la page de réservation avec ce créneau déjà sélectionné : il vous suffit de confirmer. <a href="https://renovscore.vercel.app/rdv" style="color:#2f7a5b;font-weight:600;">Voir tout le calendrier →</a></p>
+  </td></tr>
+
+  <!-- Ce qui va se passer -->
+  <tr><td class="px" style="padding:28px 40px 8px;">
+    <h2 style="margin:0 0 12px;font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-weight:400;font-size:24px;color:#163a2b;">Ce qui va se passer</h2>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;line-height:1.55;">
+      <tr><td width="34" valign="top" style="padding:0 0 12px;"><span style="display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%;background:#e3efe8;color:#1f4d3a;font-weight:600;font-size:12px;">1</span></td>
+          <td style="padding:0 0 12px;color:#1d2420;"><strong>Vous choisissez un créneau.</strong> <span style="color:#5d6b63;">Vous recevez aussitôt un e-mail de confirmation pour l'ajouter à votre agenda.</span></td></tr>
+      <tr><td width="34" valign="top" style="padding:0 0 12px;"><span style="display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%;background:#e3efe8;color:#1f4d3a;font-weight:600;font-size:12px;">2</span></td>
+          <td style="padding:0 0 12px;color:#1d2420;"><strong>Un conseiller vous appelle.</strong> <span style="color:#5d6b63;">Il vérifie avec vous les informations de la simulation et répond à vos questions.</span></td></tr>
+      <tr><td width="34" valign="top" style="padding:0;"><span style="display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%;background:#e3efe8;color:#1f4d3a;font-weight:600;font-size:12px;">3</span></td>
+          <td style="color:#1d2420;"><strong>Vous recevez une proposition personnalisée.</strong> <span style="color:#5d6b63;">Travaux conseillés, budget et aides auxquelles vous avez droit. Vous restez libre de donner suite ou non.</span></td></tr>
+    </table>
+  </td></tr>
+
+  <!-- Bon à savoir -->
+  <tr><td class="px" style="padding:20px 40px 32px;">
+    <p style="margin:0;padding:12px 14px;background:#fbf8f2;border-left:3px solid #e8a33d;font-size:13px;line-height:1.55;color:#5d6b63;">Préparez si possible une facture d'énergie récente : le conseiller pourra comparer l'estimation à votre consommation réelle.</p>
+  </td></tr>
+
+  <!-- Pied -->
+  <tr><td class="px" style="background:#163a2b;padding:22px 40px;font-size:12px;line-height:1.6;color:#e2d8c3;">
+    Vous recevez cet e-mail parce que vous avez demandé à être rappelé·e sur Rénov'Score. Nous n'utilisons vos coordonnées que pour traiter cette demande.<br>
+    <a href="https://renovscore.vercel.app/rdv/annuler" style="color:#e8a33d;">Annuler ma demande</a> · <a href="https://renovscore.vercel.app" style="color:#e8a33d;">renovscore.vercel.app</a><br>
+    <span style="opacity:.7;">Projet de démonstration réalisé par Nassima Adli — site non officiel.</span>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>
