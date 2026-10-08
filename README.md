@@ -10,11 +10,12 @@
 
 ## Le projet
 
-Une landing page avec un **simulateur en 3 étapes** (logement → chauffage → travaux) qui estime :
+Une landing page avec un **simulateur en 3 étapes** (logement et département → chauffage et température → travaux) qui estime :
 
 - les économies annuelles sur la facture de chauffage,
 - les tonnes de CO₂ évitées,
-- l'évolution de l'étiquette énergie (A → G).
+- l'évolution de l'étiquette énergie (A → G),
+- avec un rapport détaillé qui explique chaque étape du calcul.
 
 L'utilisateur peut ensuite laisser ses coordonnées pour être rappelé : la demande est enregistrée dans **Supabase**.
 
@@ -62,9 +63,12 @@ Pour tester la fonction serveur en local : `npx vercel dev` (avec un `.env.local
 
 Ordres de grandeur volontairement simples, documentés pour rester transparents :
 
-- Consommation de chauffage par époque : avant 1975 ≈ 330 kWh/m²/an, 1975-1999 ≈ 220, 2000-2012 ≈ 150, après 2012 ≈ 90 (appartement : ×0,8).
-- Gains par poste : combles −25 %, murs −20 %, fenêtres −10 %, VMC −7 %. Les gains se **cumulent de façon multiplicative** (deux gains de 20 % ≠ 40 %).
-- Pompe à chaleur : COP moyen de 3.
+- Consommation de chauffage par époque (climat moyen, 20 °C) : avant 1975 ≈ 330 kWh/m²/an, 1975-1999 ≈ 220, 2000-2012 ≈ 150, après 2012 ≈ 90 (appartement : ×0,8).
+- **Zone climatique** du département (H1 / H2 / H3) : coefficients ×1,10 / ×0,90 / ×0,58, proportionnels aux écarts entre zones des fiches CEE BAR-EN-101 (1 700 / 1 400 / 900 kWh cumac par m² isolé).
+- **Température de chauffe** : environ 7 % de consommation par degré au-dessus ou en dessous de 20 °C.
+- **Travaux déjà réalisés** : déduits de la consommation actuelle et retirés des travaux simulables.
+- Gains par poste : combles −25 %, murs −20 %, fenêtres −10 %, VMC −7 %, cumulés de façon multiplicative.
+- Pompe à chaleur : rendement (COP) de 2,7 en H1, 3 en H2, 3,3 en H3.
 - Prix et émissions moyens par énergie (fioul, gaz, électricité, bois).
 
 Ce n'est ni un DPE ni un audit énergétique.

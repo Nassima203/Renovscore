@@ -39,6 +39,29 @@ test('le détail poste par poste retombe sur le total', () => {
   }
 })
 
+test('le climat change la consommation : Nord > Bretagne > Hérault', () => {
+  const nord = estimate({ ...base, department: '59', works: ['combles'] })
+  const bretagne = estimate({ ...base, department: '35', works: ['combles'] })
+  const herault = estimate({ ...base, department: '34', works: ['combles'] })
+  assert.ok(nord.kwhBefore > bretagne.kwhBefore && bretagne.kwhBefore > herault.kwhBefore)
+})
+
+test('chauffer plus fort consomme plus', () => {
+  const a = estimate({ ...base, temperature: 19, works: ['combles'] })
+  const b = estimate({ ...base, temperature: 22, works: ['combles'] })
+  assert.ok(b.costBefore > a.costBefore)
+})
+
+test('des travaux déjà réalisés ne sont pas comptés deux fois', () => {
+  const r = estimate({ ...base, alreadyDone: ['combles'], works: ['combles', 'murs'] })
+  assert.deepEqual(r.works, ['murs'])
+  assert.ok(r.kwhBefore < estimate({ ...base, works: ['murs'] }).kwhBefore)
+})
+
+test('département inconnu → erreur', () => {
+  assert.throws(() => estimate({ ...base, department: '999' }))
+})
+
 test('seuils des étiquettes', () => {
   assert.equal(labelFor(60), 'A')
   assert.equal(labelFor(500), 'G')

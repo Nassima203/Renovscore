@@ -40,7 +40,10 @@ export default function LeadForm({ simulation }) {
         period: simulation.input.period,
         surface: Number(simulation.input.surface),
         heating: simulation.input.heating,
-        works: simulation.input.works,
+        works: simulation.result.works,
+        department: simulation.input.department,
+        temperature: simulation.input.temperature,
+        alreadyDone: simulation.input.alreadyDone,
       })
       setDemo(res.demo)
       setStatus('sent')

@@ -11,8 +11,16 @@ create table if not exists public.leads (
   surface integer not null check (surface between 10 and 1000),
   heating text not null,
   works text[] not null default '{}',
+  department text not null,
+  temperature smallint not null check (temperature between 16 and 25),
+  already_done text[] not null default '{}',
   estimated_saving integer
 );
+
+-- Si la table existait déjà (première version du projet), ajoute les nouvelles colonnes :
+alter table public.leads add column if not exists department text;
+alter table public.leads add column if not exists temperature smallint;
+alter table public.leads add column if not exists already_done text[] not null default '{}';
 
 -- Sécurité : RLS activée SANS aucune policy.
 -- => la clé publique (anon) ne peut ni lire ni écrire dans cette table.

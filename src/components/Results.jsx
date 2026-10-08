@@ -13,7 +13,7 @@ export default function Results({ result, input, onRestart }) {
           Jusqu'à <span className="highlight">{fmt(result.yearlySaving)} €</span> d'économies par an
         </h2>
         <p className="muted">
-          Travaux simulés : {input.works.map((w) => WORKS[w].label.toLowerCase()).join(', ')}.
+          Travaux simulés : {result.works.map((w) => WORKS[w].label.toLowerCase()).join(', ')}.
         </p>
 
         <div className="kpis">

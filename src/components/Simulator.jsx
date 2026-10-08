@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { HOUSING, PERIODS, HEATING, WORKS, estimate } from '../lib/estimate.js'
+import { HOUSING, PERIODS, HEATING, WORKS, INSULATION_KEYS, TEMPERATURES, ZONES, estimate } from '../lib/estimate.js'
+import { DEPARTMENTS, DEPARTMENT_LIST } from '../lib/departments.js'
 
 const STEPS = ['Votre logement', 'Votre chauffage', 'Vos travaux']
 
@@ -17,31 +18,56 @@ function ChoiceGroup({ name, options, value, onChange }) {
   )
 }
 
+function CheckGroup({ keys, values, onToggle, big = false }) {
+  return (
+    <div className={`choices ${big ? 'choices--grid' : ''}`}>
+      {keys.map((key) => (
+        <label
+          key={key}
+          className={`choice ${big ? 'choice--big' : ''} ${values.includes(key) ? 'is-active' : ''}`}
+        >
+          <input type="checkbox" checked={values.includes(key)} onChange={() => onToggle(key)} />
+          <span className="choice__icon">{WORKS[key].icon}</span>
+          {WORKS[key].label}
+        </label>
+      ))}
+    </div>
+  )
+}
+
+const toggle = (list, key) => (list.includes(key) ? list.filter((k) => k !== key) : [...list, key])
+
 export default function Simulator({ onDone }) {
   const [step, setStep] = useState(0)
   const [form, setForm] = useState({
     housing: 'maison',
     period: '1975-1999',
     surface: 90,
+    department: '',
     heating: 'gaz',
+    temperature: 20,
+    alreadyDone: [],
     works: ['combles'],
   })
   const [error, setError] = useState('')
 
   const set = (field) => (value) => setForm((f) => ({ ...f, [field]: value }))
-
-  const toggleWork = (key) =>
-    setForm((f) => ({
-      ...f,
-      works: f.works.includes(key) ? f.works.filter((w) => w !== key) : [...f.works, key],
-    }))
+  const dept = DEPARTMENTS[form.department]
+  const available = Object.keys(WORKS).filter((k) => !form.alreadyDone.includes(k))
 
   const next = () => {
     setError('')
-    if (step === 0 && !(Number(form.surface) >= 10 && Number(form.surface) <= 1000)) {
-      return setError('Indiquez une surface entre 10 et 1 000 m².')
+    if (step === 0) {
+      if (!(Number(form.surface) >= 10 && Number(form.surface) <= 1000)) {
+        return setError('Indiquez une surface entre 10 et 1 000 m².')
+      }
+      if (!dept) return setError('Choisissez votre département.')
     }
-    if (step < STEPS.length - 1) return setStep(step + 1)
+    if (step < STEPS.length - 1) {
+      // On retire des travaux à faire ceux déjà réalisés
+      if (step === 1) setForm((f) => ({ ...f, works: f.works.filter((w) => !f.alreadyDone.includes(w)) }))
+      return setStep(step + 1)
+    }
     if (form.works.length === 0) return setError('Sélectionnez au moins un type de travaux.')
     onDone(form, estimate(form))
   }
@@ -89,6 +115,28 @@ export default function Simulator({ onDone }) {
                 onChange={(e) => set('surface')(e.target.value)}
               />
             </div>
+
+            <label className="field-label" htmlFor="department">
+              Département
+            </label>
+            <select
+              id="department"
+              className="select"
+              value={form.department}
+              onChange={(e) => set('department')(e.target.value)}
+            >
+              <option value="">Choisir…</option>
+              {DEPARTMENT_LIST.map((d) => (
+                <option key={d.code} value={d.code}>
+                  {d.code} — {d.name}
+                </option>
+              ))}
+            </select>
+            {dept && (
+              <p className="field-hint">
+                {dept.region} · zone climatique <strong>{dept.zone}</strong> ({ZONES[dept.zone].label.split(' — ')[1]})
+              </p>
+            )}
           </>
         )}
 
@@ -97,6 +145,29 @@ export default function Simulator({ onDone }) {
             <h2>Comment chauffez-vous votre logement ?</h2>
             <p className="field-label">Énergie de chauffage actuelle</p>
             <ChoiceGroup name="heating" options={HEATING} value={form.heating} onChange={set('heating')} />
+
+            <p className="field-label">Température habituelle dans les pièces à vivre</p>
+            <div className="choices" role="radiogroup">
+              {TEMPERATURES.map((t) => (
+                <label key={t} className={`choice ${form.temperature === t ? 'is-active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="temperature"
+                    checked={form.temperature === t}
+                    onChange={() => set('temperature')(t)}
+                  />
+                  {t} °C
+                </label>
+              ))}
+            </div>
+            <p className="field-hint">19 °C est la température recommandée pour les pièces de vie.</p>
+
+            <p className="field-label">Travaux déjà réalisés (facultatif)</p>
+            <CheckGroup
+              keys={INSULATION_KEYS}
+              values={form.alreadyDone}
+              onToggle={(k) => set('alreadyDone')(toggle(form.alreadyDone, k))}
+            />
           </>
         )}
 
@@ -104,15 +175,7 @@ export default function Simulator({ onDone }) {
           <>
             <h2>Quels travaux envisagez-vous ?</h2>
             <p className="field-label">Plusieurs choix possibles</p>
-            <div className="choices choices--grid">
-              {Object.entries(WORKS).map(([key, w]) => (
-                <label key={key} className={`choice choice--big ${form.works.includes(key) ? 'is-active' : ''}`}>
-                  <input type="checkbox" checked={form.works.includes(key)} onChange={() => toggleWork(key)} />
-                  <span className="choice__icon">{w.icon}</span>
-                  {w.label}
-                </label>
-              ))}
-            </div>
+            <CheckGroup big keys={available} values={form.works} onToggle={(k) => set('works')(toggle(form.works, k))} />
           </>
         )}
 

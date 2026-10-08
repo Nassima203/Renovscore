@@ -1,7 +1,8 @@
 // Fonction serveur Vercel : POST /api/lead
 // Elle seule connaît la clé Supabase. Le navigateur n'en voit jamais aucune.
 import { createClient } from '@supabase/supabase-js'
-import { HOUSING, PERIODS, HEATING, WORKS, estimate } from '../src/lib/estimate.js'
+import { HOUSING, PERIODS, HEATING, WORKS, INSULATION_KEYS, estimate } from '../src/lib/estimate.js'
+import { DEPARTMENTS } from '../src/lib/departments.js'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_RE = /^(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}$/
@@ -18,6 +19,8 @@ function validate(body) {
   const postal_code = String(b.postal_code ?? '').trim()
   const surface = Number(b.surface)
   const works = Array.isArray(b.works) ? b.works.filter((w) => WORKS[w]) : []
+  const temperature = Number(b.temperature)
+  const alreadyDone = Array.isArray(b.alreadyDone) ? b.alreadyDone.filter((w) => INSULATION_KEYS.includes(w)) : []
 
   if (name.length < 2 || name.length > 120) return { error: 'Nom invalide.' }
   if (!EMAIL_RE.test(email) || email.length > 200) return { error: 'E-mail invalide.' }
@@ -25,18 +28,28 @@ function validate(body) {
   if (!/^\d{5}$/.test(postal_code)) return { error: 'Code postal invalide.' }
   if (!HOUSING[b.housing] || !PERIODS[b.period] || !HEATING[b.heating]) return { error: 'Simulation invalide.' }
   if (!(surface >= 10 && surface <= 1000)) return { error: 'Surface invalide.' }
-  if (works.length === 0) return { error: 'Aucun travaux sélectionné.' }
+  if (!DEPARTMENTS[b.department]) return { error: 'Département invalide.' }
+  if (!(temperature >= 16 && temperature <= 25)) return { error: 'Température invalide.' }
 
-  const input = { housing: b.housing, period: b.period, surface, heating: b.heating, works }
+  const input = { housing: b.housing, period: b.period, surface, heating: b.heating, works, department: b.department, temperature, alreadyDone }
+  const result = estimate(input)
+  if (result.works.length === 0) return { error: 'Aucun travaux sélectionné.' }
   return {
     lead: {
       name,
       email,
       phone: phone || null,
       postal_code,
-      ...input,
+      housing: input.housing,
+      period: input.period,
+      surface,
+      heating: input.heating,
+      works: result.works,
+      department: input.department,
+      temperature,
+      already_done: alreadyDone,
       // Recalculé côté serveur : on ne fait pas confiance au chiffre envoyé par le navigateur
-      estimated_saving: estimate(input).yearlySaving,
+      estimated_saving: result.yearlySaving,
     },
   }
 }
