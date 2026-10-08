@@ -29,19 +29,3 @@ alter table public.leads enable row level security;
 revoke all on public.leads from anon, authenticated;
 
 drop policy if exists "Public can insert leads" on public.leads;
-
--- Rendez-vous téléphoniques (page /rdv)
-create table if not exists public.appointments (
-  id uuid primary key default gen_random_uuid(),
-  created_at timestamptz not null default now(),
-  lead_id uuid references public.leads(id) on delete cascade,
-  slot_local text not null unique,          -- ex. 2026-10-13T10:30 (heure de Paris) : un seul rendez-vous par créneau
-  starts_at timestamptz not null,
-  name text not null check (char_length(name) between 2 and 120),
-  phone text not null,
-  email text,
-  status text not null default 'confirmed' check (status in ('confirmed', 'cancelled'))
-);
-create index if not exists appointments_lead_idx on public.appointments(lead_id);
-alter table public.appointments enable row level security;
-revoke all on public.appointments from anon, authenticated;
