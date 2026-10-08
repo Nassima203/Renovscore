@@ -472,12 +472,9 @@ input[type='tel'],
   margin: 28px 0 24px;
 }
 
-/* ---------- Rapport détaillé ---------- */
+/* ---------- Rapport expliqué ---------- */
 .report h3 {
-  font-size: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  font-size: 1.3rem;
   margin: 0 0 0.6em;
 }
 .report__block {
@@ -485,91 +482,117 @@ input[type='tel'],
   padding-top: 24px;
   margin-top: 24px;
 }
-.report__block p {
+.report__block p,
+.report__lead {
   margin: 0 0 0.8em;
   max-width: 65ch;
 }
-.report__n {
-  display: inline-grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--green-100);
-  color: var(--green-700);
-  font: 600 0.85rem var(--font-body);
+.report__lead {
+  margin-top: 16px;
 }
-.report__note {
-  font-size: 0.85rem;
+.summary {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.summary__item {
+  flex: 1 1 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--sand-50);
+  border-radius: 14px;
+  padding: 16px;
+}
+.summary__item--win {
+  background: var(--green-100);
+}
+.summary__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--muted);
+}
+.summary__value {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  line-height: 1.1;
+  color: var(--green-900);
+  font-variant-numeric: tabular-nums;
+}
+.summary__hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.summary__arrow {
+  align-self: center;
+  font-size: 1.4rem;
+  color: var(--muted);
+}
+.gains {
+  display: grid;
+  gap: 18px;
+}
+.gain__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.gain__icon {
+  font-size: 1.3rem;
+}
+.gain__name {
+  flex: 1;
+  min-width: 0;
+}
+.gain__euro {
+  font-weight: 600;
+  color: var(--green-700);
+  font-variant-numeric: tabular-nums;
+}
+.gain__bar {
+  display: block;
+  height: 10px;
+  margin: 8px 0;
+  border-radius: 999px;
+  background: var(--sand-100);
+  overflow: hidden;
+}
+.gain__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--green-500);
+}
+.gain__why {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin: 0 !important;
+}
+.tip {
+  margin-top: 18px !important;
+  font-size: 0.92rem;
   background: var(--sand-50);
   border-radius: 10px;
   padding: 12px 14px;
 }
+.tip--warn {
+  background: #fdf1e3;
+}
 .report__list {
-  margin: 16px 0 0;
+  margin: 0;
   padding-left: 1.1em;
   display: grid;
   gap: 8px;
-  font-size: 0.92rem;
-}
-.table-wrap {
-  overflow-x: auto;
-}
-.report__table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-  font-variant-numeric: tabular-nums;
-}
-.report__table th,
-.report__table td {
-  text-align: left;
-  padding: 10px 8px;
-  border-bottom: 1px solid var(--sand-100);
-  white-space: nowrap;
-}
-.report__table thead th {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  font-weight: 600;
-}
-.report__table tbody th {
-  font-weight: 600;
-  white-space: normal;
-}
-.report__table .num {
-  text-align: right;
-}
-.report__table .neg {
-  color: var(--danger);
-}
-.share {
-  display: inline-block;
-  vertical-align: middle;
-  width: 80px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--sand-100);
-  overflow: hidden;
-  margin-right: 8px;
-}
-.share__fill {
-  display: block;
-  height: 100%;
-  background: var(--green-500);
-}
-.share__pct {
-  font-size: 0.8rem;
-  color: var(--muted);
 }
 .scale {
   display: grid;
   gap: 5px;
-  margin: 8px 0 16px;
+  margin: 8px 0 8px;
 }
 .scale__row {
   display: flex;
@@ -577,27 +600,16 @@ input[type='tel'],
   gap: 10px;
 }
 .scale__bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
   color: #fff;
   font-weight: 700;
   font-size: 0.85rem;
   padding: 3px 12px;
   border-radius: 4px 999px 999px 4px;
-  min-width: 0;
-}
-.scale__range {
-  font-weight: 400;
-  font-size: 0.72rem;
-  opacity: 0.9;
-  white-space: nowrap;
 }
 .scale__tag {
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 2px 8px;
+  padding: 2px 10px;
   border-radius: 999px;
   white-space: nowrap;
 }
@@ -608,15 +620,6 @@ input[type='tel'],
 .scale__tag--after {
   background: var(--green-700);
   color: #fff;
-}
-.report__assumptions summary {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-title);
-  font-size: 1.25rem;
-  color: var(--green-900);
 }
 .report__next ol {
   margin: 0;
@@ -744,11 +747,8 @@ input[type='tel'],
   .bar strong {
     grid-column: 2;
   }
-  .scale__range {
+  .summary__arrow {
     display: none;
-  }
-  .share {
-    width: 48px;
   }
 }
 
