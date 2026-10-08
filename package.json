@@ -1,0 +1,23 @@
+{
+  "name": "renovscore",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Simulateur indicatif d'économies de rénovation énergétique — React + Supabase, déployé sur Vercel.",
+  "author": "Nassima Adli",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test src/lib/estimate.test.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.8"
+  }
+}
