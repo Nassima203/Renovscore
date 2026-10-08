@@ -11,7 +11,8 @@ export const PERIODS = {
   'avant-1975': { label: 'Avant 1975', kwhM2: 330 },
   '1975-1999': { label: '1975 – 1999', kwhM2: 220 },
   '2000-2012': { label: '2000 – 2012', kwhM2: 150 },
-  'apres-2012': { label: 'Après 2012', kwhM2: 90 },
+  '2012-2021': { label: '2012 – 2021', kwhM2: 90 }, // réglementation thermique RT 2012
+  'apres-2022': { label: 'Depuis 2022', kwhM2: 55 }, // réglementation environnementale RE 2020
 }
 
 export const HOUSING = {

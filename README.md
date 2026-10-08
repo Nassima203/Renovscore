@@ -63,7 +63,7 @@ Pour tester la fonction serveur en local : `npx vercel dev` (avec un `.env.local
 
 Ordres de grandeur volontairement simples, documentés pour rester transparents :
 
-- Consommation de chauffage par époque (climat moyen, 20 °C) : avant 1975 ≈ 330 kWh/m²/an, 1975-1999 ≈ 220, 2000-2012 ≈ 150, après 2012 ≈ 90 (appartement : ×0,8).
+- Consommation de chauffage par époque (climat moyen, 20 °C) : avant 1975 ≈ 330 kWh/m²/an, 1975-1999 ≈ 220, 2000-2012 ≈ 150, 2012-2021 (RT 2012) ≈ 90, depuis 2022 (RE 2020) ≈ 55 (appartement : ×0,8).
 - **Zone climatique** du département (H1 / H2 / H3) : coefficients ×1,10 / ×0,90 / ×0,58, proportionnels aux écarts entre zones des fiches CEE BAR-EN-101 (1 700 / 1 400 / 900 kWh cumac par m² isolé).
 - **Température de chauffe** : environ 7 % de consommation par degré au-dessus ou en dessous de 20 °C.
 - **Travaux déjà réalisés** : déduits de la consommation actuelle et retirés des travaux simulables.

@@ -66,3 +66,9 @@ test('seuils des étiquettes', () => {
   assert.equal(labelFor(60), 'A')
   assert.equal(labelFor(500), 'G')
 })
+
+test('un logement RE 2020 consomme moins qu’un logement RT 2012', () => {
+  const rt = estimate({ ...base, period: '2012-2021', works: ['vmc'] })
+  const re = estimate({ ...base, period: 'apres-2022', works: ['vmc'] })
+  assert.ok(re.kwhBefore < rt.kwhBefore)
+})
