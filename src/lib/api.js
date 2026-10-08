@@ -12,7 +12,10 @@ export async function saveLead(lead) {
     res = null
   }
 
-  if (res && res.ok) return { demo: false }
+  if (res && res.ok) {
+    const data = await res.json().catch(() => ({}))
+    return { demo: false, id: data.id || null }
+  }
 
   // En local avec `npm run dev`, la fonction serveur n'existe pas (404) :
   // on passe en mode démo et on garde la demande dans le navigateur.

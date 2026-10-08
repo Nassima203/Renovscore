@@ -9,6 +9,7 @@ export default function LeadForm({ simulation }) {
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
   const [errors, setErrors] = useState({})
   const [demo, setDemo] = useState(false)
+  const [leadId, setLeadId] = useState(null)
 
   const update = (e) => {
     const { name, value, type, checked } = e.target
@@ -19,7 +20,7 @@ export default function LeadForm({ simulation }) {
     const err = {}
     if (form.name.trim().length < 2) err.name = 'Indiquez votre nom.'
     if (!EMAIL_RE.test(form.email)) err.email = 'Adresse e-mail invalide.'
-    if (form.phone && !PHONE_RE.test(form.phone.trim())) err.phone = 'Numéro de téléphone invalide.'
+    if (!PHONE_RE.test(form.phone.trim())) err.phone = 'Indiquez un numéro pour être rappelé·e.'
     if (!/^\d{5}$/.test(form.postal_code)) err.postal_code = 'Code postal à 5 chiffres.'
     if (!form.consent) err.consent = 'Votre accord est nécessaire pour être recontacté.'
     setErrors(err)
@@ -35,7 +36,7 @@ export default function LeadForm({ simulation }) {
       const res = await saveLead({
         ...contact,
         name: contact.name.trim(),
-        phone: contact.phone.trim() || null,
+        phone: contact.phone.trim(),
         housing: simulation.input.housing,
         period: simulation.input.period,
         surface: Number(simulation.input.surface),
@@ -46,6 +47,7 @@ export default function LeadForm({ simulation }) {
         alreadyDone: simulation.input.alreadyDone,
       })
       setDemo(res.demo)
+      setLeadId(res.id || null)
       setStatus('sent')
     } catch (err) {
       console.error(err)
@@ -54,15 +56,22 @@ export default function LeadForm({ simulation }) {
   }
 
   if (status === 'sent') {
+    const rdvUrl = leadId ? `/rdv?demande=${leadId}` : '/rdv'
     return (
       <div className="card success">
         <div className="card__body">
-          <h2>Merci {form.name.split(' ')[0]} !</h2>
-          <p>Votre demande a bien été enregistrée. Un conseiller vous recontacterait sous 48 h.</p>
+          <p className="eyebrow">Demande reçue</p>
+          <h2>Merci {form.name.split(' ')[0]}, plus qu'une étape</h2>
+          <p>
+            Choisissez maintenant le moment où un conseiller vous appelle : 15 minutes, gratuit et sans engagement.
+          </p>
+          <a className="btn" href={rdvUrl}>
+            Choisir mon créneau d'appel →
+          </a>
           {demo && (
-            <p className="muted small">
-              (Mode démo : la demande est stockée dans votre navigateur. En ligne, elle est enregistrée dans
-              Supabase via une fonction serveur.)
+            <p className="muted small" style={{ marginTop: 16 }}>
+              (Mode démo : la demande est stockée dans votre navigateur. En ligne, elle est enregistrée dans Supabase
+              via une fonction serveur.)
             </p>
           )}
         </div>
@@ -99,7 +108,7 @@ export default function LeadForm({ simulation }) {
         <div className="form-grid">
           {field('name', 'Nom complet', { autoComplete: 'name' })}
           {field('email', 'E-mail', { type: 'email', autoComplete: 'email' })}
-          {field('phone', 'Téléphone (facultatif)', { type: 'tel', autoComplete: 'tel' })}
+          {field('phone', 'Téléphone', { type: 'tel', autoComplete: 'tel' })}
           {field('postal_code', 'Code postal', { inputMode: 'numeric', maxLength: 5, autoComplete: 'postal-code' })}
         </div>
 
