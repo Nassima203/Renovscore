@@ -7,7 +7,7 @@ export default function Footer() {
         </p>
         <p className="small">
           React · Vite · Supabase · Vercel ·{' '}
-          <a href="https://github.com/" target="_blank" rel="noreferrer">
+          <a href="https://github.com/Nassima203/Renovscore" target="_blank" rel="noreferrer">
             Code source
           </a>
         </p>

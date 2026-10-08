@@ -3,7 +3,7 @@
 > Projet de démonstration conçu, développé et déployé par **Nassima Adli** (Bachelor Développement Web, HETIC) dans le cadre d'une candidature en alternance.
 > Site non officiel — les estimations sont purement indicatives.
 
-🔗 **Démo en ligne :** _(à compléter après déploiement)_
+🔗 **Démo en ligne :** [renovscore.vercel.app](https://renovscore.vercel.app)
 🎨 **Maquette Figma :** _(à compléter)_
 
 ![Lighthouse](./docs/lighthouse.png) <!-- ajoute ta capture Lighthouse ici -->
