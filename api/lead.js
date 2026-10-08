@@ -24,7 +24,7 @@ function validate(body) {
 
   if (name.length < 2 || name.length > 120) return { error: 'Nom invalide.' }
   if (!EMAIL_RE.test(email) || email.length > 200) return { error: 'E-mail invalide.' }
-  if (!PHONE_RE.test(phone)) return { error: 'Téléphone invalide.' }
+  if (phone && !PHONE_RE.test(phone)) return { error: 'Téléphone invalide.' }
   if (!/^\d{5}$/.test(postal_code)) return { error: 'Code postal invalide.' }
   if (!HOUSING[b.housing] || !PERIODS[b.period] || !HEATING[b.heating]) return { error: 'Simulation invalide.' }
   if (!(surface >= 10 && surface <= 1000)) return { error: 'Surface invalide.' }
@@ -80,11 +80,10 @@ export default async function handler(req, res) {
   }
 
   const supabase = createClient(url, serviceKey, { auth: { persistSession: false } })
-  const { data, error: dbError } = await supabase.from('leads').insert(lead).select('id').single()
+  const { error: dbError } = await supabase.from('leads').insert(lead)
   if (dbError) {
     console.error(dbError)
     return res.status(500).json({ error: "Impossible d'enregistrer la demande." })
   }
-  // L'identifiant sert de lien vers la page de prise de rendez-vous
-  return res.status(201).json({ ok: true, id: data.id })
+  return res.status(201).json({ ok: true })
 }

@@ -9,7 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test src/lib/estimate.test.js src/lib/slots.test.js"
+    "test": "node --test src/lib/estimate.test.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
