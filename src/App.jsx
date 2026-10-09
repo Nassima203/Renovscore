@@ -1,12 +1,10 @@
 import { useRef, useState } from 'react'
-import DemoBanner from './components/DemoBanner.jsx'
 import Hero from './components/Hero.jsx'
 import Simulator from './components/Simulator.jsx'
 import Results from './components/Results.jsx'
 import Report from './components/Report.jsx'
 import LeadForm from './components/LeadForm.jsx'
 import HowItWorks from './components/HowItWorks.jsx'
-import Footer from './components/Footer.jsx'
 
 export default function App() {
   const [simulation, setSimulation] = useState(null) // { input, result }
@@ -27,7 +25,6 @@ export default function App() {
 
   return (
     <>
-      <DemoBanner />
       <header className="topbar">
         <div className="container topbar__inner">
           <a href="#" className="logo" aria-label="Rénov'Score, accueil">
@@ -59,8 +56,6 @@ export default function App() {
 
         <HowItWorks />
       </main>
-
-      <Footer />
     </>
   )
 }

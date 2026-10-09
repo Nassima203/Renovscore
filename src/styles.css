@@ -84,15 +84,6 @@ a {
   margin: 0 0 0.75rem;
 }
 
-/* ---------- Bandeau démo ---------- */
-.demo-banner {
-  background: var(--green-900);
-  color: var(--sand-100);
-  font-size: 0.8rem;
-  text-align: center;
-  padding: 8px 16px;
-}
-
 /* ---------- Header ---------- */
 .topbar {
   position: sticky;
@@ -769,25 +760,6 @@ input[type='tel'],
 }
 .step p {
   color: var(--muted);
-  margin: 0;
-}
-
-/* ---------- Footer ---------- */
-.footer {
-  background: var(--green-900);
-  color: var(--sand-100);
-  padding: 32px 0;
-}
-.footer a {
-  color: var(--amber);
-}
-.footer__inner {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.footer p {
   margin: 0;
 }
 
