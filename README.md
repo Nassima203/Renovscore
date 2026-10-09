@@ -1,74 +1,161 @@
-# Rénov'Score — Simulateur de rénovation énergétique
+# Rénov'Score
 
-> Projet de démonstration conçu, développé et déployé par **Nassima Adli** (Bachelor Développement Web, HETIC) dans le cadre d'une candidature en alternance.
-> Site non officiel — les estimations sont purement indicatives.
+**Un simulateur en ligne qui estime combien des travaux de rénovation énergétique peuvent faire économiser sur le chauffage.**
 
-🔗 **Démo en ligne :** [renovscore.vercel.app](https://renovscore.vercel.app)
-🎨 **Maquette Figma :** _(à compléter)_
+🔗 **Site en ligne :** [renovscore.vercel.app](https://renovscore.vercel.app)
+🎨 **Maquette Figma :** [Rénov'Score — Maquette](https://www.figma.com/design/abteACUSqio93S1jz5UfWQ)
+👩‍💻 **Réalisé par :** Nassima Adli, Bachelor Développement Web à HETIC
 
-![Lighthouse](./docs/lighthouse.png) <!-- ajoute ta capture Lighthouse ici -->
+> Projet de démonstration. Les chiffres sont des estimations indicatives, pas un diagnostic officiel.
 
-## Le projet
+---
 
-Une landing page avec un **simulateur en 3 étapes** (logement et département → chauffage et température → travaux) qui estime :
+## Sommaire
 
-- les économies annuelles sur la facture de chauffage,
-- les tonnes de CO₂ évitées,
-- l'évolution de l'étiquette énergie (A → G),
-- avec un rapport détaillé qui explique chaque étape du calcul.
+1. [Le projet en bref](#1-le-projet-en-bref)
+2. [Ce que fait le site](#2-ce-que-fait-le-site)
+3. [Comment ça marche](#3-comment-ça-marche)
+4. [Technologies utilisées](#4-technologies-utilisées)
+5. [Lancer le projet sur son ordinateur](#5-lancer-le-projet-sur-son-ordinateur)
+6. [Organisation des fichiers](#6-organisation-des-fichiers)
+7. [Sécurité](#7-sécurité)
+8. [Le calcul](#8-le-calcul)
+9. [Limites](#9-limites)
 
-L'utilisateur peut ensuite laisser ses coordonnées pour être rappelé : la demande est enregistrée dans **Supabase**.
+---
 
-## Ce que ce projet montre
+## 1. Le projet en bref
 
-| Étape | Ce que j'ai fait |
+L'utilisateur répond à **3 questions** sur son logement, son chauffage et les travaux qu'il envisage.
+Le site lui affiche ensuite :
+
+- 💶 les **économies par an** sur sa facture de chauffage
+- 🏷️ l'évolution de son **étiquette énergie** (de A à G)
+- 🌍 les **tonnes de CO₂** évitées
+- 📄 un **rapport détaillé** qui explique chaque étape du calcul
+
+Il peut enfin laisser ses coordonnées pour **être rappelé par un conseiller**.
+
+## 2. Ce que fait le site
+
+| Étape | Ce que l'utilisateur renseigne |
 | --- | --- |
-| **Maquette → intégration** | Maquette Figma (composants, variables, desktop + mobile) intégrée en React, responsive mobile-first, accessible (navigation clavier, `aria-*`, `prefers-reduced-motion`). |
-| **Développement** | Composants React, logique métier isolée et testée (`src/lib/estimate.js`), validation de formulaire côté client. |
-| **Back-end** | Fonction serveur Vercel (`api/lead.js`) qui valide la demande et l'enregistre dans Supabase. Aucune clé n'est exposée dans le navigateur ; la table est verrouillée par **Row Level Security** (aucun accès public). |
-| **Déploiement** | CI GitHub Actions (tests + build à chaque push), déploiement continu sur Vercel, headers de sécurité et de cache. |
+| 1. Le logement | Maison ou appartement, année de construction, surface, département |
+| 2. Le chauffage | Énergie (gaz, fioul, électricité, bois), température, travaux déjà faits |
+| 3. Les travaux | Isolation des combles, des murs, fenêtres, ventilation, pompe à chaleur |
 
-## Stack
+Résultat : une estimation chiffrée, un rapport détaillé et un formulaire de rappel.
 
-React 18 · Vite · Supabase (PostgreSQL) · Vercel · GitHub Actions · CSS natif · Anton + Poppins
+## 3. Comment ça marche
 
-## Lancer en local
-
-```bash
-npm install
-npm run dev      # http://localhost:5173
-npm test         # tests unitaires du moteur d'estimation
-npm run build    # build de production dans /dist
+```
+  Navigateur (React)                 Serveur (Vercel)              Base de données
+ ┌──────────────────┐   formulaire   ┌────────────────┐   insère   ┌───────────────┐
+ │ Simulateur       │ ─────────────▶ │  api/lead.js   │ ─────────▶ │   Supabase    │
+ │ + calcul         │                │ vérifie tout   │            │ (table leads) │
+ │ + rapport        │                │ et recalcule   │            │               │
+ └──────────────────┘                └────────────────┘            └───────────────┘
 ```
 
-Avec `npm run dev`, la fonction serveur n'est pas lancée : le formulaire passe en **mode démo** (demandes stockées dans le navigateur).
+- **Le calcul** se fait directement dans le navigateur : le résultat s'affiche instantanément.
+- **La demande de rappel** passe par une fonction serveur, qui vérifie les données avant de les enregistrer.
 
-## Brancher Supabase
+## 4. Technologies utilisées
 
-1. Crée un projet sur [supabase.com](https://supabase.com).
-2. Dans **SQL Editor**, colle et exécute le contenu de `supabase/schema.sql`.
-3. Dans **Project Settings → API**, copie la Project URL et la clé `service_role` (secrète).
+| Rôle | Outil |
+| --- | --- |
+| Maquette | Figma |
+| Interface | React 18 + Vite |
+| Style | CSS natif, polices Anton et Poppins |
+| Serveur | Fonction serveur Vercel |
+| Base de données | Supabase (PostgreSQL) |
+| Hébergement | Vercel (mise en ligne automatique à chaque push) |
+| Tests | Tests unitaires avec `node:test`, lancés par GitHub Actions |
 
-La clé `service_role` n'est utilisée que par la fonction serveur `api/lead.js`. Elle n'est jamais envoyée au navigateur ni poussée sur GitHub.
+## 5. Lancer le projet sur son ordinateur
 
-## Déployer sur Vercel
+Il faut **Node.js 18 ou plus**.
 
-1. Sur [vercel.com](https://vercel.com) → **Add New → Project** → importe le dépôt (Vite est détecté automatiquement).
-2. Dans **Environment Variables**, ajoute `SUPABASE_URL` et `SUPABASE_SERVICE_ROLE_KEY` (sans préfixe `VITE_`).
-3. **Deploy**. Chaque push sur `main` redéploie automatiquement.
+```bash
+# 1. Récupérer le projet
+git clone https://github.com/Nassima203/Renovscore.git
+cd Renovscore
 
-Pour tester la fonction serveur en local : `npx vercel dev` (avec un `.env.local` rempli à partir de `.env.example`).
+# 2. Installer les dépendances
+npm install
 
-## Hypothèses de calcul
+# 3. Lancer le site → http://localhost:5173
+npm run dev
+```
 
-Ordres de grandeur volontairement simples, documentés pour rester transparents :
+Autres commandes utiles :
 
-- Consommation de chauffage par époque (climat moyen, 20 °C) : avant 1975 ≈ 330 kWh/m²/an, 1975-1999 ≈ 220, 2000-2012 ≈ 150, 2012-2021 (RT 2012) ≈ 90, depuis 2022 (RE 2020) ≈ 55 (appartement : ×0,8).
-- **Zone climatique** du département (H1 / H2 / H3) : coefficients ×1,10 / ×0,90 / ×0,58, proportionnels aux écarts entre zones des fiches CEE BAR-EN-101 (1 700 / 1 400 / 900 kWh cumac par m² isolé).
-- **Température de chauffe** : environ 7 % de consommation par degré au-dessus ou en dessous de 20 °C.
-- **Travaux déjà réalisés** : déduits de la consommation actuelle et retirés des travaux simulables.
-- Gains par poste : combles −25 %, murs −20 %, fenêtres −10 %, VMC −7 %, cumulés de façon multiplicative.
-- Pompe à chaleur : rendement (COP) de 2,7 en H1, 3 en H2, 3,3 en H3.
-- Prix et émissions moyens par énergie (fioul, gaz, électricité, bois).
+| Commande | Ce qu'elle fait |
+| --- | --- |
+| `npm test` | Lance les tests du calcul |
+| `npm run build` | Prépare la version de production |
 
-Ce n'est ni un DPE ni un audit énergétique.
+> En local, le formulaire de rappel fonctionne en **mode démo** : rien n'est envoyé à la base de données.
+
+## 6. Organisation des fichiers
+
+```
+Renovscore/
+├── api/
+│   └── lead.js              → fonction serveur : enregistre les demandes de rappel
+├── public/
+│   └── emails/              → maquettes des e-mails de confirmation
+├── src/
+│   ├── components/          → les blocs de la page (simulateur, résultats, rapport…)
+│   ├── lib/
+│   │   ├── estimate.js      → le calcul des économies
+│   │   ├── estimate.test.js → les tests du calcul
+│   │   └── departments.js   → les 96 départements et leur zone climatique
+│   ├── App.jsx              → assemble la page
+│   └── styles.css           → le design
+├── supabase/
+│   └── schema.sql           → création de la table en base
+└── .env.example             → modèle des variables secrètes (sans vraies valeurs)
+```
+
+## 7. Sécurité
+
+- 🔒 **Aucune clé secrète dans le code.** Elles sont stockées uniquement dans les réglages de Vercel.
+- 🔒 **Le navigateur ne parle jamais directement à la base.** Tout passe par la fonction serveur.
+- 🔒 **La base est verrouillée.** Personne ne peut lire les demandes depuis l'extérieur.
+- ✅ **Les données sont vérifiées côté serveur** : e-mail, téléphone, code postal… et l'estimation est recalculée.
+- 🤖 **Un champ invisible bloque les robots** qui remplissent les formulaires automatiquement.
+
+## 8. Le calcul
+
+Le calcul part de la consommation moyenne d'un logement de la même époque, puis l'ajuste à la situation de l'utilisateur.
+
+| Critère | Effet sur la consommation |
+| --- | --- |
+| Année de construction | De 330 kWh/m²/an (avant 1975) à 55 kWh/m²/an (depuis 2022) |
+| Appartement | −20 % par rapport à une maison |
+| Climat du département | Nord et Est +10 % · Ouest et Centre −10 % · Méditerranée −42 % |
+| Température de chauffe | Environ 7 % par degré au-dessus ou en dessous de 20 °C |
+
+Gain de chaque type de travaux :
+
+| Travaux | Gain |
+| --- | --- |
+| Isolation des combles | −25 % |
+| Isolation des murs | −20 % |
+| Fenêtres double vitrage | −10 % |
+| Ventilation (VMC) | −7 % |
+| Pompe à chaleur | Produit 2,7 à 3,3 fois plus de chaleur que l'électricité consommée |
+
+> Les gains **ne s'additionnent pas** : chaque chantier s'applique à ce qui reste.
+> Combles (−25 %) puis murs (−20 %) donnent **−40 %**, et non −45 %.
+
+## 9. Limites
+
+- Ce sont des **moyennes nationales** : la vraie facture dépend aussi du logement et des habitudes.
+- Le **prix des travaux** et les **aides financières** ne sont pas pris en compte.
+- L'étiquette énergie affichée est **indicative** : seul un diagnostiqueur certifié peut établir le DPE officiel.
+
+---
+
+*Projet réalisé par Nassima Adli dans le cadre d'une recherche d'alternance en développement web.*
