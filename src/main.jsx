@@ -1,3 +1,4 @@
+// Point d'entrée : affichage de l'application dans la balise #root de index.html
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'

@@ -1,54 +1,80 @@
-// Fonction serveur Vercel : POST /api/lead
-// Elle seule connaît la clé Supabase. Le navigateur n'en voit jamais aucune.
+/**
+ * Fonction serveur Vercel : POST /api/lead
+ * Vérification de la demande de rappel, recalcul de l'estimation et enregistrement dans Supabase.
+ * Seul endroit qui connaît la clé Supabase : aucune clé n'est envoyée au navigateur.
+ */
 import { createClient } from '@supabase/supabase-js'
-import { HOUSING, PERIODS, HEATING, WORKS, INSULATION_KEYS, estimate } from '../src/lib/estimate.js'
-import { DEPARTMENTS } from '../src/lib/departments.js'
+import { estimate, INSULATION_KEYS } from '../src/lib/estimate.js'
+import { EMAIL_RE, PHONE_RE, POSTAL_CODE_RE } from '../src/lib/validation.js'
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const PHONE_RE = /^(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}$/
+// Clés lues dans les variables d'environnement Vercel (sans préfixe VITE_, donc jamais intégrées au site)
+const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Variables SANS préfixe VITE_ : Vite ne les met jamais dans le code du site.
-const url = process.env.SUPABASE_URL
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+// Lecture du corps de la requête (objet JSON ou texte)
+function parseBody(body) {
+  if (typeof body !== 'string') return body && typeof body === 'object' ? body : null
+  try {
+    return JSON.parse(body)
+  } catch {
+    return null
+  }
+}
 
-function validate(body) {
-  const b = body && typeof body === 'object' ? body : {}
-  const name = String(b.name ?? '').trim()
-  const email = String(b.email ?? '').trim()
-  const phone = String(b.phone ?? '').trim()
-  const postal_code = String(b.postal_code ?? '').trim()
-  const surface = Number(b.surface)
-  const works = Array.isArray(b.works) ? b.works.filter((w) => WORKS[w]) : []
-  const temperature = Number(b.temperature)
-  const alreadyDone = Array.isArray(b.alreadyDone) ? b.alreadyDone.filter((w) => INSULATION_KEYS.includes(w)) : []
+// Vérification des données, puis construction de la ligne à enregistrer
+function buildLead(body) {
+  const text = (value) => String(value ?? '').trim()
+  const name = text(body.name)
+  const email = text(body.email)
+  const phone = text(body.phone)
+  const postalCode = text(body.postal_code)
+  const surface = Number(body.surface)
+  const temperature = Number(body.temperature)
+  const works = Array.isArray(body.works) ? body.works : []
+  const alreadyDone = Array.isArray(body.alreadyDone)
+    ? body.alreadyDone.filter((key) => INSULATION_KEYS.includes(key))
+    : []
 
+  // Coordonnées
   if (name.length < 2 || name.length > 120) return { error: 'Nom invalide.' }
   if (!EMAIL_RE.test(email) || email.length > 200) return { error: 'E-mail invalide.' }
   if (phone && !PHONE_RE.test(phone)) return { error: 'Téléphone invalide.' }
-  if (!/^\d{5}$/.test(postal_code)) return { error: 'Code postal invalide.' }
-  if (!HOUSING[b.housing] || !PERIODS[b.period] || !HEATING[b.heating]) return { error: 'Simulation invalide.' }
-  if (!(surface >= 10 && surface <= 1000)) return { error: 'Surface invalide.' }
-  if (!DEPARTMENTS[b.department]) return { error: 'Département invalide.' }
-  if (!(temperature >= 16 && temperature <= 25)) return { error: 'Température invalide.' }
+  if (!POSTAL_CODE_RE.test(postalCode)) return { error: 'Code postal invalide.' }
 
-  const input = { housing: b.housing, period: b.period, surface, heating: b.heating, works, department: b.department, temperature, alreadyDone }
-  const result = estimate(input)
+  // Simulation : recalcul complet, sans se fier aux chiffres envoyés par le navigateur
+  if (!(surface >= 10 && surface <= 1000)) return { error: 'Surface invalide.' }
+  if (!body.department) return { error: 'Département invalide.' }
+  let result
+  try {
+    result = estimate({
+      housing: body.housing,
+      period: body.period,
+      surface,
+      heating: body.heating,
+      department: body.department,
+      temperature,
+      works,
+      alreadyDone,
+    })
+  } catch {
+    return { error: 'Simulation invalide.' }
+  }
   if (result.works.length === 0) return { error: 'Aucun travaux sélectionné.' }
+
   return {
     lead: {
       name,
       email,
       phone: phone || null,
-      postal_code,
-      housing: input.housing,
-      period: input.period,
+      postal_code: postalCode,
+      housing: body.housing,
+      period: body.period,
       surface,
-      heating: input.heating,
-      works: result.works,
-      department: input.department,
+      department: body.department,
+      heating: body.heating,
       temperature,
+      works: result.works,
       already_done: alreadyDone,
-      // Recalculé côté serveur : on ne fait pas confiance au chiffre envoyé par le navigateur
       estimated_saving: result.yearlySaving,
     },
   }
@@ -60,26 +86,19 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Méthode non autorisée.' })
   }
 
-  let body = req.body
-  if (typeof body === 'string') {
-    try {
-      body = JSON.parse(body)
-    } catch {
-      return res.status(400).json({ error: 'Requête invalide.' })
-    }
-  }
+  const body = parseBody(req.body)
+  if (!body) return res.status(400).json({ error: 'Requête invalide.' })
 
-  // Champ piège invisible : un humain le laisse vide, un robot le remplit
-  if (body?.website) return res.status(200).json({ ok: true })
+  // Champ piège : vide pour un humain, rempli par un robot → réponse « ok » sans enregistrement
+  if (body.website) return res.status(200).json({ ok: true })
 
-  const { error, lead } = validate(body)
+  const { error, lead } = buildLead(body)
   if (error) return res.status(400).json({ error })
 
-  if (!url || !serviceKey) {
-    return res.status(500).json({ error: 'Serveur non configuré.' })
-  }
+  if (!SUPABASE_URL || !SUPABASE_KEY) return res.status(500).json({ error: 'Serveur non configuré.' })
 
-  const supabase = createClient(url, serviceKey, { auth: { persistSession: false } })
+  // Enregistrement dans la table « leads »
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } })
   const { error: dbError } = await supabase.from('leads').insert(lead)
   if (dbError) {
     console.error(dbError)

@@ -110,7 +110,10 @@ Renovscore/
 │   ├── lib/
 │   │   ├── estimate.js      → le calcul des économies
 │   │   ├── estimate.test.js → les tests du calcul
-│   │   └── departments.js   → les 96 départements et leur zone climatique
+│   │   ├── departments.js   → les 96 départements et leur zone climatique
+│   │   ├── validation.js    → formats e-mail, téléphone, code postal
+│   │   ├── format.js        → affichage des nombres à la française
+│   │   └── api.js           → envoi de la demande au serveur
 │   ├── App.jsx              → assemble la page
 │   └── styles.css           → le design
 ├── supabase/

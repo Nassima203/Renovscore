@@ -2,6 +2,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { estimate, labelFor } from './estimate.js'
 
+// Logement de base commun à la plupart des tests
+
 const base = { housing: 'maison', period: 'avant-1975', surface: 100, heating: 'fioul' }
 
 test('sans travaux, aucune économie', () => {
@@ -23,7 +25,7 @@ test('une pompe à chaleur réduit fortement la facture fioul', () => {
 
 test("l'étiquette s'améliore après isolation", () => {
   const r = estimate({ ...base, works: ['combles', 'murs'] })
-  assert.ok(r.labelAfter < r.labelBefore) // 'D' < 'E' alphabétiquement
+  assert.ok(r.labelAfter < r.labelBefore) // ordre alphabétique : A meilleure que G
 })
 
 test('paramètres invalides → erreur', () => {

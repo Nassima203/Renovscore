@@ -6,21 +6,25 @@ import Report from './components/Report.jsx'
 import LeadForm from './components/LeadForm.jsx'
 import HowItWorks from './components/HowItWorks.jsx'
 
+// Page unique : en-tête, accroche, simulateur (puis résultats), « Comment ça marche »
 export default function App() {
-  const [simulation, setSimulation] = useState(null) // { input, result }
-  const simRef = useRef(null)
+  const [simulation, setSimulation] = useState(null) // { input, result } une fois la simulation terminée
+  const simulatorRef = useRef(null)
   const resultsRef = useRef(null)
 
+  // Défilement fluide vers une section
   const scrollTo = (ref) => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
-  const handleDone = (input, result) => {
+  // Fin de simulation : affichage des résultats
+  const showResults = (input, result) => {
     setSimulation({ input, result })
     requestAnimationFrame(() => scrollTo(resultsRef))
   }
 
+  // Nouvelle simulation : retour au formulaire
   const restart = () => {
     setSimulation(null)
-    requestAnimationFrame(() => scrollTo(simRef))
+    requestAnimationFrame(() => scrollTo(simulatorRef))
   }
 
   return (
@@ -31,25 +35,25 @@ export default function App() {
             <img src="/favicon.svg" alt="" width="28" height="28" />
             Rénov'Score
           </a>
-          <button className="btn btn--small" onClick={() => scrollTo(simRef)}>
+          <button className="btn btn--small" onClick={() => scrollTo(simulatorRef)}>
             Simuler
           </button>
         </div>
       </header>
 
       <main>
-        <Hero onStart={() => scrollTo(simRef)} />
+        <Hero onStart={() => scrollTo(simulatorRef)} />
 
-        <section ref={simRef} id="simulateur" className="section">
+        <section ref={simulatorRef} id="simulateur" className="section">
           <div className="container narrow">
-            {!simulation ? (
-              <Simulator onDone={handleDone} />
-            ) : (
+            {simulation ? (
               <div ref={resultsRef}>
-                <Results result={simulation.result} input={simulation.input} onRestart={restart} />
-                <Report result={simulation.result} input={simulation.input} />
-                <LeadForm simulation={simulation} />
+                <Results result={simulation.result} onRestart={restart} />
+                <Report input={simulation.input} result={simulation.result} />
+                <LeadForm input={simulation.input} />
               </div>
+            ) : (
+              <Simulator onDone={showResults} />
             )}
           </div>
         </section>

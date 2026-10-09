@@ -1,3 +1,4 @@
+# Intégration continue : tests et compilation à chaque push sur main et à chaque pull request
 name: CI
 
 on:
@@ -9,11 +10,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Récupération du code
       - uses: actions/checkout@v4
+
+      # Installation de Node.js (avec cache des dépendances)
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+
+      # Installation, tests du calcul, puis compilation du site
       - run: npm ci
       - run: npm test
       - run: npm run build

@@ -1,12 +1,11 @@
 /**
- * Moteur d'estimation — volontairement simple et transparent.
- * Toutes les valeurs sont des ordres de grandeur INDICATIFS (hypothèses
- * détaillées dans le README). Ce n'est ni un DPE ni un audit énergétique.
+ * Moteur d'estimation des économies de chauffage.
+ * Valeurs indicatives (ordres de grandeur) : ni DPE, ni audit énergétique.
  */
 import { DEPARTMENTS } from './departments.js'
 
-// Consommation de chauffage moyenne (kWh / m² / an) selon l'époque de construction,
-// pour un climat moyen français et une température intérieure de 20 °C.
+// Consommation de chauffage de référence (kWh/m²/an) par époque de construction,
+// pour un climat moyen et 20 °C à l'intérieur
 export const PERIODS = {
   'avant-1975': { label: 'Avant 1975', kwhM2: 330 },
   '1975-1999': { label: '1975 – 1999', kwhM2: 220 },
@@ -15,28 +14,27 @@ export const PERIODS = {
   'apres-2022': { label: 'Depuis 2022', kwhM2: 55 }, // réglementation environnementale RE 2020
 }
 
+// Coefficient selon le type de logement (moins de murs extérieurs en appartement)
 export const HOUSING = {
   maison: { label: 'Maison', factor: 1 },
   appartement: { label: 'Appartement', factor: 0.8 },
 }
 
-// Zones climatiques : coefficient appliqué aux besoins de chauffage.
-// Proportions tirées des fiches CEE BAR-EN-101 (1 700 / 1 400 / 900 kWh cumac par m² isolé
-// en H1 / H2 / H3), ramenées autour de la moyenne nationale.
-// Le rendement d'une pompe à chaleur (COP) baisse quand il fait plus froid.
+// Zones climatiques : coefficient sur les besoins de chauffage et rendement (COP) de la pompe à chaleur.
+// Écarts tirés des fiches CEE BAR-EN-101 : 1 700 / 1 400 / 900 kWh cumac par m² isolé.
 export const ZONES = {
-  H1: { label: 'H1 — climat froid (Nord, Est, Île-de-France, montagne)', factor: 1.1, cop: 2.7 },
-  H2: { label: 'H2 — climat tempéré (Ouest, Sud-Ouest, Centre)', factor: 0.9, cop: 3 },
-  H3: { label: 'H3 — climat méditerranéen', factor: 0.58, cop: 3.3 },
+  H1: { name: 'climat froid (Nord, Est, Île-de-France, montagne)', factor: 1.1, cop: 2.7 },
+  H2: { name: 'climat tempéré (Ouest, Sud-Ouest, Centre)', factor: 0.9, cop: 3 },
+  H3: { name: 'climat méditerranéen', factor: 0.58, cop: 3.3 },
 }
+const DEFAULT_COP = 3
 
-// Température de chauffe : environ 7 % de consommation en plus par degré au-dessus de 20 °C
-// (et en moins en dessous), ordre de grandeur couramment retenu par l'ADEME.
+// Températures proposées et effet d'un degré de plus ou de moins (environ 7 %, ordre de grandeur ADEME)
 export const TEMPERATURES = [18, 19, 20, 21, 22, 23]
-const PER_DEGREE = 0.07
-const tempFactor = (t) => 1 + PER_DEGREE * (t - 20)
+export const PER_DEGREE = 0.07
+const temperatureFactor = (temp) => 1 + PER_DEGREE * (temp - 20)
 
-// Prix (€/kWh) et émissions (kg CO₂/kWh) — ordres de grandeur
+// Prix moyen (€/kWh) et émissions (kg CO₂/kWh) par énergie
 export const HEATING = {
   fioul: { label: 'Fioul', price: 0.12, co2: 0.324 },
   gaz: { label: 'Gaz', price: 0.11, co2: 0.227 },
@@ -50,25 +48,30 @@ export const WORKS = {
   murs: { label: 'Isolation des murs', icon: '🧱', saving: 0.2 },
   fenetres: { label: 'Fenêtres double vitrage', icon: '🪟', saving: 0.1 },
   vmc: { label: 'Ventilation (VMC)', icon: '🌬️', saving: 0.07 },
-  pac: { label: 'Pompe à chaleur', icon: '♨️', saving: 0 },
+  pac: { label: 'Pompe à chaleur', icon: '♨️', saving: 0 }, // gain calculé à part (COP)
 }
-// Travaux qu'on peut déclarer « déjà réalisés »
+
+// Travaux d'isolation, déclarables comme « déjà réalisés »
 export const INSULATION_KEYS = ['combles', 'murs', 'fenetres', 'vmc']
 
-const LABELS = [
-  { max: 70, letter: 'A' },
-  { max: 110, letter: 'B' },
-  { max: 180, letter: 'C' },
-  { max: 250, letter: 'D' },
-  { max: 330, letter: 'E' },
-  { max: 420, letter: 'F' },
-  { max: Infinity, letter: 'G' },
+// Seuils des étiquettes énergie (kWh de chauffage par m² et par an)
+export const LABELS = [
+  { letter: 'A', max: 70 },
+  { letter: 'B', max: 110 },
+  { letter: 'C', max: 180 },
+  { letter: 'D', max: 250 },
+  { letter: 'E', max: 330 },
+  { letter: 'F', max: 420 },
+  { letter: 'G', max: Infinity },
 ]
 
-export const labelFor = (kwhM2) => LABELS.find((l) => kwhM2 <= l.max).letter
-export const LABEL_THRESHOLDS = LABELS
+export const labelFor = (kwhM2) => LABELS.find((label) => kwhM2 <= label.max).letter
 
-const round = (n, step = 10) => Math.round(n / step) * step
+// Arrondi au pas voulu : 10 € ou 100 kWh
+const round = (value, step = 10) => Math.round(value / step) * step
+
+// Part des besoins restante après une liste de travaux (gains cumulés, et non additionnés)
+const remainingShare = (keys) => keys.reduce((share, key) => share * (1 - WORKS[key].saving), 1)
 
 export function estimate({
   housing,
@@ -80,98 +83,94 @@ export function estimate({
   temperature = 20,
   alreadyDone = [],
 }) {
-  const s = Number(surface)
-  const t = Number(temperature)
+  const area = Number(surface)
+  const temp = Number(temperature)
   const dept = department ? DEPARTMENTS[department] : null
-  if (
-    !HOUSING[housing] ||
-    !PERIODS[period] ||
-    !HEATING[heating] ||
-    !(s > 0) ||
-    !(t >= 16 && t <= 25) ||
-    (department && !dept)
-  ) {
-    throw new Error('Paramètres invalides')
-  }
+
+  // Vérification des paramètres
+  const isValid =
+    HOUSING[housing] &&
+    PERIODS[period] &&
+    HEATING[heating] &&
+    area > 0 &&
+    temp >= 16 &&
+    temp <= 25 &&
+    (!department || dept)
+  if (!isValid) throw new Error('Paramètres invalides')
 
   const zone = dept ? ZONES[dept.zone] : null
   const climate = zone ? zone.factor : 1
-  const cop = zone ? zone.cop : 3
-  const done = alreadyDone.filter((w) => INSULATION_KEYS.includes(w))
-  const todo = works.filter((w) => WORKS[w] && !done.includes(w))
+  const cop = zone ? zone.cop : DEFAULT_COP
+  const done = alreadyDone.filter((key) => INSULATION_KEYS.includes(key))
+  const todo = works.filter((key) => WORKS[key] && !done.includes(key))
 
-  // 1. Besoins de chauffage actuels
-  const reference = PERIODS[period].kwhM2 * HOUSING[housing].factor * s // logement « moyen » de l'époque
-  const afterClimate = reference * climate
-  const afterTemp = afterClimate * tempFactor(t)
-  const doneFactor = done.reduce((acc, w) => acc * (1 - WORKS[w].saving), 1)
-  const needBefore = afterTemp * doneFactor
+  // 1. Besoins actuels : référence → climat → température → travaux déjà réalisés
+  const reference = PERIODS[period].kwhM2 * HOUSING[housing].factor * area
+  const withClimate = reference * climate
+  const withTemperature = withClimate * temperatureFactor(temp)
+  const needBefore = withTemperature * remainingShare(done)
 
-  // 2. Après travaux : les gains se cumulent de façon multiplicative
-  const remaining = todo.reduce((acc, w) => acc * (1 - WORKS[w].saving), 1)
-  const needAfter = needBefore * remaining
+  // 2. Besoins après travaux
+  const needAfter = needBefore * remainingShare(todo)
 
-  const usesPac = todo.includes('pac')
+  // 3. Énergie consommée : avec une pompe à chaleur, passage à l'électricité et division par le COP
   const heat = HEATING[heating]
   const elec = HEATING.electrique
+  const usesPac = todo.includes('pac')
   const energyAfter = usesPac ? needAfter / cop : needAfter
-  const priceAfter = usesPac ? elec.price : heat.price
-  const co2After = usesPac ? elec.co2 : heat.co2
+  const energyType = usesPac ? elec : heat
 
+  // 4. Coûts (€/an) et émissions (kg CO₂/an)
   const costBefore = needBefore * heat.price
-  const costAfter = energyAfter * priceAfter
+  const costAfter = energyAfter * energyType.price
   const co2Before = needBefore * heat.co2
-  const co2Saved = co2Before - energyAfter * co2After
+  const co2After = energyAfter * energyType.co2
 
-  // 3. Détail poste par poste : l'isolation d'abord (chaque gain s'applique
-  // à ce qui reste), puis le changement de chauffage.
+  // 5. Détail par chantier : isolation d'abord (chaque gain sur ce qui reste), pompe à chaleur en dernier
   const breakdown = []
   let need = needBefore
-  for (const key of INSULATION_KEYS) {
-    if (!todo.includes(key)) continue
-    const savedKwh = need * WORKS[key].saving
-    need -= savedKwh
-    breakdown.push({ key, kwhSaved: round(savedKwh, 100), euroSaved: round(savedKwh * heat.price) })
+  for (const key of INSULATION_KEYS.filter((k) => todo.includes(k))) {
+    const kwhSaved = need * WORKS[key].saving
+    need -= kwhSaved
+    breakdown.push({ key, kwhSaved: round(kwhSaved, 100), euroSaved: round(kwhSaved * heat.price) })
   }
   if (usesPac) {
-    const euro = needAfter * heat.price - (needAfter / cop) * elec.price
-    breakdown.push({ key: 'pac', kwhSaved: round(needAfter - needAfter / cop, 100), euroSaved: round(euro) })
+    breakdown.push({
+      key: 'pac',
+      kwhSaved: round(needAfter - energyAfter, 100),
+      euroSaved: round(needAfter * heat.price - energyAfter * elec.price),
+    })
   }
 
   return {
+    works: todo,
+
+    // Consommation et étiquette énergie
     kwhBefore: round(needBefore, 100),
     kwhAfter: round(energyAfter, 100),
+    kwhM2Before: Math.round(needBefore / area),
+    kwhM2After: Math.round(energyAfter / area),
+    labelBefore: labelFor(needBefore / area),
+    labelAfter: labelFor(energyAfter / area),
+
+    // Facture de chauffage
     costBefore: round(costBefore),
     costAfter: round(costAfter),
     yearlySaving: round(Math.max(0, costBefore - costAfter)),
     savingPct: Math.max(0, Math.round((1 - costAfter / costBefore) * 100)),
-    co2SavedKg: round(Math.max(0, co2Saved)),
+
+    // Émissions de CO₂
     co2BeforeKg: round(co2Before),
-    labelBefore: labelFor(needBefore / s),
-    labelAfter: labelFor(energyAfter / s),
-    kwhM2Before: Math.round(needBefore / s),
-    kwhM2After: Math.round(energyAfter / s),
-    works: todo,
+    co2SavedKg: round(Math.max(0, co2Before - co2After)),
+
+    // Détails pour le rapport
     breakdown,
-    // Comment on passe du logement « moyen » au vôtre (kWh/an)
     steps: {
       reference: round(reference, 100),
-      climate: round(afterClimate, 100),
-      temperature: round(afterTemp, 100),
+      climate: round(withClimate, 100),
+      temperature: round(withTemperature, 100),
       alreadyDone: round(needBefore, 100),
     },
-    assumptions: {
-      kwhM2Period: PERIODS[period].kwhM2,
-      housingFactor: HOUSING[housing].factor,
-      zone: dept ? dept.zone : null,
-      climateFactor: climate,
-      tempFactor: tempFactor(t),
-      perDegree: PER_DEGREE,
-      price: heat.price,
-      co2: heat.co2,
-      elecPrice: elec.price,
-      elecCo2: elec.co2,
-      cop,
-    },
+    factors: { climate, temperature: temperatureFactor(temp), cop },
   }
 }

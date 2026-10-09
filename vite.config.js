@@ -1,3 +1,4 @@
+// Configuration de Vite : compilation du JSX avec le plugin React
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 

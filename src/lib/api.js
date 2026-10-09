@@ -1,7 +1,6 @@
-// Le navigateur envoie la demande à notre propre fonction serveur (/api/lead).
-// Aucune clé Supabase n'est présente dans le code du site.
+// Envoi de la demande de rappel à la fonction serveur (/api/lead)
 export async function saveLead(lead) {
-  let res
+  let res = null
   try {
     res = await fetch('/api/lead', {
       method: 'POST',
@@ -9,24 +8,25 @@ export async function saveLead(lead) {
       body: JSON.stringify(lead),
     })
   } catch {
-    res = null
+    // Réseau indisponible : bascule en mode démo ci-dessous
   }
 
-  if (res && res.ok) return { demo: false }
+  if (res?.ok) return { demo: false }
 
-  // En local avec `npm run dev`, la fonction serveur n'existe pas (404) :
-  // on passe en mode démo et on garde la demande dans le navigateur.
+  // Mode démo : en local (npm run dev), la fonction serveur n'existe pas (erreur 404).
+  // Conservation de la demande dans le navigateur uniquement.
   if (!res || res.status === 404) {
     try {
-      const list = JSON.parse(localStorage.getItem('renovscore-leads') || '[]')
-      list.push({ ...lead, created_at: new Date().toISOString() })
-      localStorage.setItem('renovscore-leads', JSON.stringify(list))
+      const saved = JSON.parse(localStorage.getItem('renovscore-leads') || '[]')
+      saved.push({ ...lead, created_at: new Date().toISOString() })
+      localStorage.setItem('renovscore-leads', JSON.stringify(saved))
     } catch {
-      /* stockage indisponible : on ignore, c'est une démo */
+      // Stockage du navigateur indisponible : sans conséquence en démo
     }
     return { demo: true }
   }
 
+  // Erreur renvoyée par le serveur
   const data = await res.json().catch(() => ({}))
   throw new Error(data.error || 'Erreur serveur')
 }
